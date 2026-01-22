@@ -1,10 +1,15 @@
 import React from "react";
+import { Link } from "react-router-dom";
 
-function Home(){
+function Home(props){
     return(
-        <p>
-            hello world!
-        </p>
+        <ul>
+            {props.list.map((data) =>
+            <li>
+                <Link to = {"/location/"+data.SiteID}>{data.Site}</Link>
+            </li>
+            )}
+        </ul>
     );
 }
 

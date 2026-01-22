@@ -3,7 +3,8 @@ import './App.css';
 import { useEffect, useState } from 'react';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import HomePage from './HomePage.js';
-function App(props) 
+import Location from './Location.js';
+function App() 
 {
 
 const[siteArr, setSiteArr] = useState([])
@@ -31,7 +32,8 @@ const[siteArr, setSiteArr] = useState([])
     <div className="App">
       <BrowserRouter>
         <Routes>
-        <Route path = "/" element = {<HomePage/>} />
+        <Route path = "/" element = {<HomePage list = {siteArr}/>} />
+        <Route path = "/location/:SiteID" element = {<Location list = {siteArr}/>}/>
       </Routes>
       </BrowserRouter>
       
