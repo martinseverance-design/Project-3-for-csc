@@ -3,7 +3,8 @@ import './App.css';
 import { useEffect, useState } from 'react';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import HomePage from './HomePage.js';
-function App() {
+function App(props) 
+{
 
 const[siteArr, setSiteArr] = useState([])
   useEffect(() => 
@@ -29,9 +30,9 @@ const[siteArr, setSiteArr] = useState([])
   return (
     <div className="App">
       <BrowserRouter>
-        {/* <Routes>
+        <Routes>
         <Route path = "/" element = {<HomePage/>} />
-      </Routes> */}
+      </Routes>
       </BrowserRouter>
       
     </div>
