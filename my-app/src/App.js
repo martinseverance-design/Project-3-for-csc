@@ -4,6 +4,9 @@ import { useEffect, useState } from 'react';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import HomePage from './HomePage.js';
 import Location from './Location.js';
+
+
+
 function App() 
 {
 
@@ -19,7 +22,7 @@ const[siteArr, setSiteArr] = useState([])
       if (response.ok)
          {
             const result = await response.json();
-            console.log(result)
+            //console.log(result)
             setSiteArr(result)
          }
 
