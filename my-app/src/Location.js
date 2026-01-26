@@ -55,27 +55,50 @@ function Location(props){
             }
         }
 
-        useLayoutEffect(() => {
+        // // useLayoutEffect(() => {
 
-            const map = new Map({
+        // //     const map = new Map({
+        // //         layers: [
+        // //             new TileLayer({source: new OSM()},)
+        // //         ],
+        // //         view: new View({
+        // //             center: fromLonLat([-84.7725, 37.65]),
+        // //             zoom: 13,
+        // //         }),
+        // //         target: 'map',
+        // //     })
+
+        //     return () => {
+        //     map.setTarget(null);
+        //     };
+
+        // },[])
+
+
+
+        location()
+
+
+        function remakeMap(){
+            console.log("ranMap")
+            const mapDom = document.getElementById('map');
+                if(!mapDom)
+                {   console.log("returned")
+                    return;}
+                mapDom.replaceChildren();
+                const map = new Map({
                 layers: [
                     new TileLayer({source: new OSM()},)
                 ],
                 view: new View({
-                    center: fromLonLat([-84.7725, 37.65]),
+                    center: fromLonLat([site.Longitude, site.Latitude]),
                     zoom: 13,
                 }),
                 target: 'map',
             })
 
-            return () => {
-            map.setTarget(null);
-            };
-
-        },[])
-
-
-        location()
+            }
+        
 
 
 
@@ -95,21 +118,8 @@ function Location(props){
         <div id = "map">
             
         </div>
+        {remakeMap()}
 
-
-        <button onClick = {() => {
-                const map = new Map({
-                layers: [
-                    new TileLayer({source: new OSM()},)
-                ],
-                view: new View({
-                    center: fromLonLat([site.Longitude, site.Latitude]),
-                    zoom: 13,
-                }),
-                target: 'map',
-            })
-
-            }}>Press to reaload the map</button>
 
         </section>
     )}
