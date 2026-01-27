@@ -4,11 +4,11 @@ import View from 'ol/View';
 import TileLayer from 'ol/layer/Tile';
 import OSM from 'ol/source/OSM';
 import './MapComponent.css';
-import GeoJSON from 'ol/format/GeoJSON'
+import GeoJSON from 'ol/format/GeoJSON';
 import Feature from 'ol/Feature'
 import Point from 'ol/geom/Point'
 import {Stroke, Style } from 'ol/style'
-import { use, useEffect, useLayoutEffect, useState } from "react";
+import { use, useEffect, useLayoutEffect, useState, useRef } from "react";
 import { fromLonLat } from "ol/proj";
 import VectorLayer from 'ol/layer/Vector';
 import VectorSource from 'ol/source/Vector';
@@ -25,27 +25,43 @@ function Location(props){
 
     //console.log(`https://router.project-osrm.org/route/v1/driving/${long},${lat};${site.Longitude},${site.Latitude}?overview=full&geometries=geojson`)
 
+    const [steps, setSteps] = useState([])
+
     const siteMarker = new VectorSource()
 
     const siteLayer = new VectorLayer({
         source: siteMarker,
     })
 
-    const routeSource = new VectorSource()
+    const routeSourceRef = useRef(new VectorSource())
 
-    const routeLayer = new VectorLayer({
-        source: routeSource,
-    });
+    const routeLayerRef = useRef(new VectorLayer({
+        source: routeSourceRef.current,
+    }));
 
-    function getRoute(){
-        if(lat+long != 0){
+    const [geometry, setGeometry] = useState(null)
+
+    useEffect(() => {
+
+        if(lat + long === 0){return;}
+        if(!site){return;}
         async function fetchRoute(start, end){
             const url = `https://router.project-osrm.org/route/v1/driving/${long},${lat};${site.Longitude},${site.Latitude}?overview=full&geometries=geojson&steps=true`
             const response = await fetch(url)
             const route = await response.json()
             console.log(response)
-            routeSource.clear()
-            const geometry = route.routes[0].geometry
+            setGeometry(route.routes[0].geometry)
+            setSteps(route.routes[0].legs[0].steps)
+    }
+    fetchRoute();
+
+
+    },[lat, long, site])
+
+     useEffect(() => {
+        if(!geometry){return;}
+        const source = routeSourceRef.current
+         source.clear()
             const routeFeature = new GeoJSON().readFeature({
                 type: 'Feature',
                 geometry: geometry,
@@ -60,10 +76,11 @@ function Location(props){
                 }),
             })
         )
-        routeSource.addFeature(routeFeature)
-        }
-        fetchRoute()}
-    }
+        source.addFeature(routeFeature)
+    }, [geometry])
+        
+
+    
         
 
         function location(){
@@ -121,7 +138,7 @@ function Location(props){
                 const map = new Map({
                 layers: [
                     new TileLayer({source: new OSM()}),
-                    routeLayer,
+                    routeLayerRef.current,
                     siteLayer,
                 ],
                 view: new View({
@@ -151,28 +168,16 @@ function Location(props){
             )
             siteMarker.addFeature(marker);
             }
-
-            const [steps, setSteps] = useState([])
+         
 
             function giveInstructions(){
-
-                async function getInstuctions(start, end){
-                const url = `https://router.project-osrm.org/route/v1/driving/${long},${lat};${site.Longitude},${site.Latitude}?overview=full&geometries=geojson&steps=true`
-                const response = await fetch(url)
-                const data = await response.json()
-
-                const directions = data.routes[0].legs[0].steps
-                setSteps(directions)
-                
-            }
-            getInstuctions()
 
                 return(
                     <ol>
                         {
                             steps.map((direction, index) =>(
                                 <li key = {index}>
-                                    {direction.maneuver.instruction} {Math.round(steps.distance)} m
+                                    {direction.maneuver.type} {direction.maneuver.modifier} onto {direction.name} for {direction.distance} m
                                 </li>
                             
                         ))
@@ -200,7 +205,6 @@ function Location(props){
             
         </div>
         {remakeMap()}
-        {getRoute()}
         {makeMarker()}
         {giveInstructions()}
         

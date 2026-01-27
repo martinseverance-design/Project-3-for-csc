@@ -45,7 +45,6 @@
   border: solid;
   border-color: white;
   border-radius: 5px;
-  margin-bottom: 50px;
   
 }
 
@@ -149,4 +148,12 @@ header{
  
 
   
+  }
+
+  ol{
+    background-color: white;
+    border-radius: 25px;
+    margin-left: 10px;
+    margin-right: 10px;
+    margin-bottom: 50px;
   }
