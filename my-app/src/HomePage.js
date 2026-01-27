@@ -5,7 +5,6 @@ function Home(props){
 
     let rngOne = Math.floor(Math.random() * (props.list.length + 1))
     let tempArr = props.list
-    console.log(tempArr)
 
     return(
         <section id = "home" style = {{backgroundImage: tempArr[rngOne]?.Image

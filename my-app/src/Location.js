@@ -4,16 +4,67 @@ import View from 'ol/View';
 import TileLayer from 'ol/layer/Tile';
 import OSM from 'ol/source/OSM';
 import './MapComponent.css';
+import GeoJSON from 'ol/format/GeoJSON'
+import Feature from 'ol/Feature'
+import Point from 'ol/geom/Point'
+import {Stroke, Style } from 'ol/style'
 import { use, useEffect, useLayoutEffect, useState } from "react";
 import { fromLonLat } from "ol/proj";
+import VectorLayer from 'ol/layer/Vector';
+import VectorSource from 'ol/source/Vector';
+import VectorTileLayer from "ol/layer/VectorTile";
+import { Circle as CircleStyle, Fill } from 'ol/style';
 
 function Location(props){
     const{SiteID} = useParams();
-    console.log(props.list)
     const site = props.list.find(s => s.SiteID == SiteID);
     const [lat, setLat] = useState(0);
     const [long, setLong] = useState(0);
 
+
+
+    //console.log(`https://router.project-osrm.org/route/v1/driving/${long},${lat};${site.Longitude},${site.Latitude}?overview=full&geometries=geojson`)
+
+    const siteMarker = new VectorSource()
+
+    const siteLayer = new VectorLayer({
+        source: siteMarker,
+    })
+
+    const routeSource = new VectorSource()
+
+    const routeLayer = new VectorLayer({
+        source: routeSource,
+    });
+
+    function getRoute(){
+        if(lat+long != 0){
+        async function fetchRoute(start, end){
+            const url = `https://router.project-osrm.org/route/v1/driving/${long},${lat};${site.Longitude},${site.Latitude}?overview=full&geometries=geojson&steps=true`
+            const response = await fetch(url)
+            const route = await response.json()
+            console.log(response)
+            routeSource.clear()
+            const geometry = route.routes[0].geometry
+            const routeFeature = new GeoJSON().readFeature({
+                type: 'Feature',
+                geometry: geometry,
+            },
+        {
+            featureProjection: 'EPSG:3857',
+        })
+        routeFeature.setStyle(
+            new Style({
+                stroke: new Stroke({
+                    width: 5,
+                }),
+            })
+        )
+        routeSource.addFeature(routeFeature)
+        }
+        fetchRoute()}
+    }
+        
 
         function location(){
             if(!navigator.geolocation){
@@ -49,30 +100,12 @@ function Location(props){
             else{
                 return(
                     <p className = "info">
-                        Here is a route to {site.Site}:
+                        You are the blue dot. Here is a route to {site.Site}:
                     </p>
                 )
             }
         }
 
-        // // useLayoutEffect(() => {
-
-        // //     const map = new Map({
-        // //         layers: [
-        // //             new TileLayer({source: new OSM()},)
-        // //         ],
-        // //         view: new View({
-        // //             center: fromLonLat([-84.7725, 37.65]),
-        // //             zoom: 13,
-        // //         }),
-        // //         target: 'map',
-        // //     })
-
-        //     return () => {
-        //     map.setTarget(null);
-        //     };
-
-        // },[])
 
 
 
@@ -80,25 +113,73 @@ function Location(props){
 
 
         function remakeMap(){
-            console.log("ranMap")
             const mapDom = document.getElementById('map');
                 if(!mapDom)
-                {   console.log("returned")
+                {
                     return;}
                 mapDom.replaceChildren();
                 const map = new Map({
                 layers: [
-                    new TileLayer({source: new OSM()},)
+                    new TileLayer({source: new OSM()}),
+                    routeLayer,
+                    siteLayer,
                 ],
                 view: new View({
-                    center: fromLonLat([site.Longitude, site.Latitude]),
-                    zoom: 13,
+                    center: fromLonLat([long, lat]),
+                    zoom: 14.5,
                 }),
                 target: 'map',
             })
 
+
             }
-        
+            function makeMarker(){
+            const marker = new Feature({
+                geometry: new Point(fromLonLat([long, lat])),
+            })
+
+            marker.setStyle(
+                new Style({
+                    image: new CircleStyle({
+                        radius: 5,
+                        fill: new Fill({
+                            color: "blue"
+                        }),
+                        stroke: new Stroke({ color: "white", width: 2 }),
+                    }),
+                })
+            )
+            siteMarker.addFeature(marker);
+            }
+
+            const [steps, setSteps] = useState([])
+
+            function giveInstructions(){
+
+                async function getInstuctions(start, end){
+                const url = `https://router.project-osrm.org/route/v1/driving/${long},${lat};${site.Longitude},${site.Latitude}?overview=full&geometries=geojson&steps=true`
+                const response = await fetch(url)
+                const data = await response.json()
+
+                const directions = data.routes[0].legs[0].steps
+                setSteps(directions)
+                
+            }
+            getInstuctions()
+
+                return(
+                    <ol>
+                        {
+                            steps.map((direction, index) =>(
+                                <li key = {index}>
+                                    {direction.maneuver.instruction} {Math.round(steps.distance)} m
+                                </li>
+                            
+                        ))
+                        }
+                    </ol>
+                )
+            }
 
 
 
@@ -119,6 +200,10 @@ function Location(props){
             
         </div>
         {remakeMap()}
+        {getRoute()}
+        {makeMarker()}
+        {giveInstructions()}
+        
 
 
         </section>

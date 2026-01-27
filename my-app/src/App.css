@@ -45,6 +45,7 @@
   border: solid;
   border-color: white;
   border-radius: 5px;
+  margin-bottom: 50px;
   
 }
 
@@ -65,9 +66,14 @@
 
 .back{
   padding: 10px;
-  color: white;
+  color: blue;
+  background-color: white;
   margin-bottom: 5px;
   font-size: larger;
+  border-radius: 15px;
+  padding: 5px;
+  margin: 5px;
+  text-decoration: none;
 }
 button{
   height: 40px;
@@ -89,6 +95,8 @@ header{
 
 .info{
   color: white;
+  margin-left: 10px;
+  margin-right: 10px;
 }
 
 
@@ -102,31 +110,43 @@ header{
   background-position: center;
 }
 
-ul{
-  list-style-type: none;
-}
+
 
 #twofifty{
-  width: 50%;
+  width: 350px;
   border-radius: 25px;
   margin-top: 10px;
+  border:solid;
+  border-color: black;
   
 
 }
 
 .siteLink{
+  display: flex;
   padding: 5px;
+  
 
 }
 #linkCover{
   margin: 15px;
-  padding-left: 15%;
-  padding-right: 15%;
-  background-color: white;
   border-radius: 25px;
+  margin-bottom: 50px;
 }
 
 .siteUrl{
-  color: orange;
+  flex: 1;
+  background-color: white;
+  color: blue;
+  font-weight: bolder;
   font-size: larger;
-}
+  border-radius: 15px;
+  padding: 5px;
+  margin: 5px;
+  text-decoration: none;
+  border:solid;
+  border-color: black;
+ 
+
+  
+  }
